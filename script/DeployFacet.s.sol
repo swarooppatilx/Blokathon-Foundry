@@ -8,10 +8,21 @@ import {IDiamondCut} from "src/facets/baseFacets/cut/IDiamondCut.sol";
 import {AaveV3Facet} from "src/facets/utilityFacets/aaveV3/AaveV3Facet.sol";
 
 contract DeployFacetScript is BaseScript {
-    address internal constant DIAMOND_ADDRESS = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
+    address internal DIAMOND_ADDRESS;
 
     function run() public broadcaster {
         setUp();
+
+        // Try to get Diamond address from environment or deployment artifacts
+        DIAMOND_ADDRESS = vm.envOr("DIAMOND_ADDRESS", address(0));
+
+        if (DIAMOND_ADDRESS == address(0)) {
+            console.log("Error: DIAMOND_ADDRESS not set in .env");
+            revert("DIAMOND_ADDRESS required");
+        }
+
+        console.log("Using Diamond at: ", DIAMOND_ADDRESS);
+
         // Deploy AaveV3Facet
         AaveV3Facet aaveV3Facet = new AaveV3Facet();
 
