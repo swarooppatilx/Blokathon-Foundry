@@ -1,423 +1,145 @@
-# Blok-a-Thon: Facet Building Hackathon
+# Digital Will: Modular DeFi Asset Management Platform
 
-Welcome to the **Blok-a-Thon**, a Blok Capital hackathon focused on building modular smart contract facets using the Diamond Proxy pattern (EIP-2535). This repository provides a ready-to-use Foundry setup with a fully configured Diamond Proxy architecture.
+## Overview
 
-## Hackathon Overview
+This repository houses the complete smart contract system for the **Digital Will**, a sophisticated asset management platform engineered using the Diamond Proxy pattern (EIP-2535). It provides a robust, upgradeable foundation built on Foundry, featuring essential components such as a **Diamond Factory** for decentralized vault deployment and advanced tooling for **DeFi Integration**, specifically enabling local testing against an Arbitrum fork with **Aave V3**.
 
-### What is this Hackathon About?
+#### Main Menu
+![Digital Will - Mainmenu](assets/screenshot1.png)
+#### Will Menu
+![Digital Will - Will Menu](assets/screenshot2.png)
+#### Aave Lending
+![Digital Will - Aave Lending](assets/screenshot3.png)
 
-This is a **Facet-Building Hackathon** where participants create modular smart contract functionality (facets) that plug into a Diamond Proxy. Instead of building contracts from scratch, you'll leverage the power of the Diamond standard to create composable, upgradeable features.
+### Project Mandate
 
-### Theme: Wealth Management
+The system is designed to address the need for secure, automated, and upgradeable long-term asset management and inheritance logic within the DeFi ecosystem.
 
-Build DeFi tools that help users **manage and grow their assets** for the long term. Think wealth building, not speculation.
+The core utility is provided by the **Digital Will Facet**, which executes complex, multi-step actions upon verifiable, pre-defined triggers (e.g., time-lock expiry, multi-signature confirmation). These actions include:
 
-**Examples:**
-- Token swap mechanisms (like Uniswap)
-- Lending and borrowing protocols (like Aave)
-- Yield farming strategies
-- Any DeFi logic focused on wealth preservation and growth
+-   **Estate Liquidity & Distribution**: Automated liquidation or transfer of assets to designated beneficiaries.
+-   **Debt Management**: Protocol-level interaction for loan repayment, collateral rebalancing, or health factor maintenance on platforms like Aave.
+-   **Security Upgrades**: The modular design allows for continuous incorporation of new security features and protocol versions without migrating user funds.
 
-### Supported Blockchains
+### Deployment Footprint
 
-- **Arbitrum One** (ARB)
-- **Polygon** (POL)
-- **Avalanche** (AVAX)
-- **Base**
-- **BNB Smart Chain** (BNB)
-
----
-
-## 📚 Understanding Diamond Proxy (EIP-2535)
-
-The **Diamond Proxy** pattern allows a single contract to use multiple implementation contracts (facets) through delegatecall. This enables:
-
-- **Modularity**: Add, replace, or remove functionality without redeploying everything
-- **Unlimited Contract Size**: Bypass the 24KB contract size limit
-- **Shared State**: All facets share the same storage
-- **Upgradeability**: Upgrade parts of your system independently
-
-### Key Concepts
-
-- **Diamond**: The main proxy contract that delegates calls to facets
-- **Facets**: Implementation contracts containing specific functionality
-- **Function Selectors**: 4-byte identifiers mapping functions to their respective facets
-- **DiamondCut**: The mechanism for adding/replacing/removing facets
-
-**Resources:**
-- [EIP-2535 Specification](https://eips.ethereum.org/EIPS/eip-2535)
-- [Diamond Standard Documentation](https://eip2535diamonds.substack.com/)
+| Network | Status | Notes |
+| :--- | :--- | :--- |
+| **Arbitrum One** (ARB) | Primary Target | Enabled for local fork testing and deployment. |
+| **Polygon** (POL) | Supported | Production-ready configuration included. |
+| **Avalanche** (AVAX) | Supported | Production-ready configuration included. |
+| **Base** | Supported | Production-ready configuration included. |
+| **BNB Smart Chain** (BNB) | Supported | Production-ready configuration included. |
 
 ---
 
-## Getting Started
+## I. Technical Architecture
+
+The architecture leverages EIP-2535 to ensure modularity, address the 24KB contract size limit, and provide native upgradeability.
+
+-   **Diamond Factory**: A mechanism for deploying a user's initial Diamond vault (`Diamond.sol`) and its base facets in a single, streamlined transaction, ensuring consistency and gas efficiency.
+-   **Aave V3 Integration**: Facilitated by a dedicated facet (e.g., `AaveV3Facet`) that utilizes the locally included Aave V3 Core dependency.
+
+---
+
+## II. Development Environment Setup
 
 ### Prerequisites
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation) installed
-- Basic understanding of Solidity
-- Git installed
+-   [Foundry](https://book.getfoundry.sh/getting-started/installation) (latest stable version)
+-   Git
 
-### 1. Fork and Clone the Repository
+### Configuration and Installation
 
-```bash
-# Fork this repository on GitHub, then clone your fork
-git clone https://github.com/YOUR_USERNAME/Blokathon-Foundry.git
-cd Blokathon-Foundry
+1.  **Clone Repository:**
+    ```bash
+    git clone https://github.com/swarooppatilx/Blokathon-Foundry.git 
+    cd Blokathon-Foundry
+    ```
+2.  **Install Dependencies:**
+    ```bash
+    forge install
+    ```
+3.  **Environment Variables:**
+    ```bash
+    cp .env.example .env
+    # Populate .env with RPCs/Keys and source it
+    source .env
 
-# Install dependencies
-forge install
-```
-
-### 2. Set Up Environment Variables
-
-```bash
-# Copy the example environment file
-cp .envExample .env
-
-# Edit .env with your credentials
-nano .env  # or use your preferred editor
-```
-
-**`.env` file structure:**
-```bash
-PRIVATE_KEY_ANVIL=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-RPC_URL_ANVIL=http://127.0.0.1:8545
-
-# For deploying to real networks
-PRIVATE_KEY=your_private_key_here
-RPC_URL_ARBITRUM=https://arb1.arbitrum.io/rpc
-RPC_URL_POLYGON=https://polygon-rpc.com
-RPC_URL_AVALANCHE=https://api.avax.network/ext/bc/C/rpc
-RPC_URL_BASE=https://mainnet.base.org
-RPC_URL_BSC=https://bsc-dataseed.binance.org
-
-# Etherscan API keys for verification
-API_KEY_ETHERSCAN=your_etherscan_api_key
-API_KEY_ARBISCAN=your_arbiscan_api_key
-API_KEY_POLYGONSCAN=your_polygonscan_api_key
-API_KEY_SNOWTRACE=your_snowtrace_api_key
-API_KEY_BASESCAN=your_basescan_api_key
-API_KEY_BSCSCAN=your_bscscan_api_key
-```
-
-### 3. Load Environment Variables
-
-```bash
-source .env
-```
+2.  **Compile & Buid :**
+    ```bash
+    forge build
+    ```
 
 ---
 
-## 🛠️ Foundry Commands
+## III. Local Testing and Validation
 
-### Build Contracts
+The provided scripts establish a robust development environment for testing DeFi interactions.
 
-```bash
-forge build
-```
-
-### Run Tests
-
-```bash
-forge test
-
-# Run with verbosity
-forge test -vvv
-
-# Run specific test
-forge test --match-test testFunctionName
-```
-
-### Format Code
-
-```bash
-forge fmt
-```
-
-### Gas Snapshots
-
-```bash
-forge snapshot
-```
-
-### Clean Build Artifacts
-
-```bash
-forge clean
-```
+| Action | Command | Description |
+| :--- | :--- | :--- |
+| **Run Fork Environment** | `./start-arbitrum-fork.sh` | Initiates an Anvil instance that forks the Arbitrum mainnet, providing access to real-world DeFi contract environments (e.g., Aave V3). **Must run in a dedicated terminal session.** |
+| **Fund Test Wallet** | `./get-fork-tokens.sh` | Executes a series of impersonated transfers from whale addresses on the forked network to fund the default Anvil account with tokens (USDC, WETH, ARB, DAI). |
+| **Run All Tests** | `./test-integration.sh` | Executes `forge build`, `forge test`, and validation of deployment scripts and core functionality. |
+| **Interface Interaction** | `./cli.sh` | Launches an interactive console for rapid command-line interaction with the deployed Diamond instance. |
 
 ---
 
-## 🌐 Deployment
+## IV. Deployment Workflow
 
-### Deploy to Local Anvil (for testing)
+### 1. Local Deployment and Factory Initialization
 
-**Terminal 1 - Start Anvil:**
-```bash
-anvil
-```
-
-**Terminal 2 - Deploy Diamond:**
-```bash
-source .env
-
-forge script script/Deploy.s.sol \
-  --rpc-url $RPC_URL_ANVIL \
-  --private-key $PRIVATE_KEY_ANVIL \
-  --broadcast
-```
-
-**Important:** If you use a different private key variable name in your `.env`, update the corresponding line in `script/Deploy.s.sol`:
-
-```solidity
-bytes32 privateKey = vm.envBytes32("YOUR_PRIVATE_KEY_NAME");
-```
-
-### Deploy to Mainnet/Testnet
+The following commands deploy the core infrastructure onto your local, forked Anvil instance.
 
 ```bash
-source .env
+# Deploy the initial Diamond Proxy and its base facets (Cut, Loupe, Ownership, DigitalWill)
+forge script script/Deploy.s.sol --rpc-url $RPC_URL_ANVIL --private-key $PRIVATE_KEY_ANVIL --broadcast
 
-forge script script/Deploy.s.sol \
-  --rpc-url $RPC_URL_ARBITRUM \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  --verify \
-  --slow \
-  --etherscan-api-key $API_KEY_ARBISCAN
+# Deploy the centralized Diamond Factory for multi-vault provisioning
+forge script script/DeployFactory.s.sol --rpc-url $RPC_URL_ANVIL --private-key $PRIVATE_KEY_ANVIL --broadcast
 ```
+***Action Item:*** *Update `DIAMOND_ADDRESS` and `FACTORY_ADDRESS` in `.env` after successful deployment.*
 
-Replace `$RPC_URL_ARBITRUM` and `$API_KEY_ARBISCAN` with the appropriate variables for your target chain:
-- Polygon: `$RPC_URL_POLYGON`, `$API_KEY_POLYGONSCAN`
-- Avalanche: `$RPC_URL_AVALANCHE`, `$API_KEY_SNOWTRACE`
-- Base: `$RPC_URL_BASE`, `$API_KEY_BASESCAN`
-- BSC: `$RPC_URL_BSC`, `$API_KEY_BSCSCAN`
+### 2. Facet Management
 
-### Verification Failed? Resume Verification
-
-If deployment succeeds but Etherscan verification fails:
+Deploy and link new features (facets) to the Diamond proxy using the `DeployFacet.s.sol` script.
 
 ```bash
-forge script script/Deploy.s.sol \
-  --rpc-url $RPC_URL_ARBITRUM \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  --verify \
-  --slow \
-  --resume \
-  --etherscan-api-key $API_KEY_ARBISCAN
-```
-
-### Deploy Additional Facets
-
-After the Diamond is deployed, you can add new facets:
-
-```bash
+# Example: Deploying and cutting-in the AaveV3Facet
 forge script script/DeployFacet.s.sol \
   --rpc-url $RPC_URL_ANVIL \
   --private-key $PRIVATE_KEY_ANVIL \
   --broadcast
 ```
 
+### 3. Factory Management CLI
+
+The dedicated CLI is the primary interface for managing multi-user deployments through the Diamond Factory.
+
+| Command | Description | Example |
+| :--- | :--- | :--- |
+| **Provision New Vault** | `./factory-cli.sh deploy [owner_address]` | Deploys a new, isolated Diamond vault for a specified asset owner. |
+| **Audit Deployments** | `./factory-cli.sh my-diamonds` | Retrieves a list of all Diamond addresses provisioned by the calling wallet. |
+| **Inspect Factory** | `./factory-cli.sh implementations` | Displays the canonical implementation addresses of all facets managed by the Factory. |
+
 ---
 
-## 📁 Repository Structure
+## V. Repository Structure
 
 ```
-Blokathon-Foundry/
+DigitalWill-Foundry/
 ├── src/
-│   ├── Diamond.sol                # Main Diamond proxy contract
-│   ├── facets/
-│   │   ├── Facet.sol              # Base facet contract
-│   │   ├── baseFacets/            # Core Diamond facets
-│   │   │   ├── cut/               # DiamondCut functionality
-│   │   │   ├── loupe/             # DiamondLoupe for introspection
-│   │   │   └── ownership/         # Ownership management
-│   │   └── utilityFacets/         # Your custom facets go here!
-│   ├── interfaces/                # Interface definitions
-│   └── libraries/                 # Shared libraries
+│   ├── Diamond.sol                # The EIP-2535 Diamond Proxy
+│   ├── DiamondFactory.sol         # The Multi-Vault Provisioning Contract
+│   └── facets/
+│       └── utilityFacets/         # Project-specific logic (DigitalWillFacet, AaveV3Facet, etc.)
 ├── script/
-│   ├── Deploy.s.sol               # Diamond deployment script
-│   ├── DeployFacet.s.sol          # Facet deployment script
-│   └── Base.s.sol                 # Base script utilities
-├── test/                          # Test files
-├── .envExample                    # Example environment variables
-└── README.md                      # This file
+│   ├── Deploy.s.sol               # Core Diamond deployment logic
+│   ├── DeployFactory.s.sol        # Factory deployment logic
+│   └── DeployFacet.s.sol          # Individual facet cut/upgrade logic
+├── test/                          # Comprehensive Foundry Test Suite
+├── factory-cli.sh                 # Diamond Factory CLI
+├── start-arbitrum-fork.sh         # Arbitrum Fork setup script
+└── get-fork-tokens.sh             # Test asset funding script
 ```
-
----
-
-## 💡 Building Your Facet
-
-### Step 1: Create Your Facet Files
-
-Create four files in `src/facets/utilityFacets/`:
-
-1. **`YourFacetStorage.sol`** - Storage struct
-2. **`IYourFacet.sol`** - Interface
-3. **`YourFacetBase.sol`** - Internal logic
-4. **`YourFacet.sol`** - Public-facing facet
-
-### Step 2: Example Facet Structure
-
-**YourFacetStorage.sol:**
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-library YourFacetStorage {
-    bytes32 constant STORAGE_POSITION = keccak256("your.facet.storage");
-    
-    struct Layout {
-        mapping(address => uint256) balances;
-        uint256 totalSupply;
-    }
-    
-    function layout() internal pure returns (Layout storage l) {
-        bytes32 position = STORAGE_POSITION;
-        assembly {
-            l.slot := position
-        }
-    }
-}
-```
-
-**IYourFacet.sol:**
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-interface IYourFacet {
-    function yourFunction() external returns (uint256);
-}
-```
-
-**YourFacetBase.sol:**
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "./YourFacetStorage.sol";
-
-contract YourFacetBase {
-    function _yourInternalLogic() internal view returns (uint256) {
-        YourFacetStorage.Layout storage l = YourFacetStorage.layout();
-        return l.totalSupply;
-    }
-}
-```
-
-**YourFacet.sol:**
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "../Facet.sol";
-import "./YourFacetBase.sol";
-import "./IYourFacet.sol";
-
-contract YourFacet is Facet, YourFacetBase, IYourFacet {
-    function yourFunction() external override returns (uint256) {
-        return _yourInternalLogic();
-    }
-}
-```
-
-### Step 3: Test Your Facet
-
-Create a test file in `test/`:
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "forge-std/Test.sol";
-import "../src/Diamond.sol";
-import "../src/facets/utilityFacets/YourFacet.sol";
-
-contract YourFacetTest is Test {
-    Diamond diamond;
-    YourFacet yourFacet;
-    
-    function setUp() public {
-        // Deploy and configure diamond
-        diamond = new Diamond(address(this));
-        yourFacet = new YourFacet();
-        
-        // Add facet to diamond using DiamondCut
-        // ... (cut logic here)
-    }
-    
-    function testYourFunction() public {
-        // Your test logic
-    }
-}
-```
-
-### Step 4: Deploy Your Facet
-
-Update `script/DeployFacet.s.sol` with your facet's deployment logic, then run:
-
-```bash
-forge script script/DeployFacet.s.sol \
-  --rpc-url $RPC_URL_ANVIL \
-  --private-key $PRIVATE_KEY_ANVIL \
-  --broadcast
-```
-
----
-
-## 🧪 Interacting with Cast
-
-### Query Diamond Functions
-
-```bash
-# Get all facets
-cast call $DIAMOND_ADDRESS "facets()" --rpc-url $RPC_URL_ANVIL
-
-# Get facet address for a function
-cast call $DIAMOND_ADDRESS "facetAddress(bytes4)" $FUNCTION_SELECTOR --rpc-url $RPC_URL_ANVIL
-
-# Call your custom function
-cast call $DIAMOND_ADDRESS "yourFunction()" --rpc-url $RPC_URL_ANVIL
-```
-
-### Send Transactions
-
-```bash
-cast send $DIAMOND_ADDRESS "yourFunction(uint256)" 100 \
-  --private-key $PRIVATE_KEY_ANVIL \
-  --rpc-url $RPC_URL_ANVIL
-```
-
----
-
-## 📖 Helpful Resources
-
-- **Foundry Book**: https://book.getfoundry.sh/
-- **EIP-2535 Diamond Standard**: https://eips.ethereum.org/EIPS/eip-2535
-- **Diamond Pattern Guide**: https://eip2535diamonds.substack.com/
-- **Solidity Documentation**: https://docs.soliditylang.org/
-
----
-
-## 🏆 Hackathon Tips
-
-1. **Start Simple**: Begin with a basic facet and iterate
-2. **Read EIP-2535**: Understanding the Diamond pattern is crucial
-3. **Use Storage Properly**: Each facet should use namespaced storage to avoid collisions
-4. **Test Thoroughly**: Write comprehensive tests for your facet
-5. **Focus on Wealth Management**: Build tools that help users grow and preserve assets
-6. **Consider Security**: Use OpenZeppelin libraries when possible
-7. **Document Your Code**: Clear comments help judges understand your work
-
----
-
-## 🤝 Getting Help
-
-- Review existing facets in `src/facets/` for examples
-- Check the Foundry documentation for tooling questions
-- Study the Diamond proxy implementation in `src/Diamond.sol`
-
----
